@@ -64,6 +64,7 @@ void	*free_htable(t_hash_table *table)
 void	print_table(t_hash_table *table)
 {
 	size_t	i;
+	t_list	*aux;
 
 	if (table == NULL)
 	{
@@ -81,6 +82,16 @@ void	print_table(t_hash_table *table)
 				i,
 				table->items[i]->key,
 				table->items[i]->value);
+			aux = table->overflow_buckets[i];
+			while (aux != NULL)
+			{
+				printf("Index:%lld, Key:%s, Value:%s\n",
+				i,
+				((t_ht_item *)aux->content)->key,
+				((t_ht_item *)aux->content)->value);
+				aux = aux->next;
+				
+			}
         }
 		i++;
 	}

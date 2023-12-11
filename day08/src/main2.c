@@ -5,35 +5,60 @@ void	print_step(char order, char *instruction, char *commands)
 	printf("ORDER [%c] -> Instruction [%s] -> commands [%s] \n", order, instruction, commands);
 }
 
+en_bool	end_map(char instructions[6][4])
+{
+	//printf("\nCHECK END MAP\n------------------\n");
+	for (int i = 0; i < 6; i++)
+	{
+		//printf ("Instruction: %s\n", instructions[i]);
+		if (instructions[i][2] != 'Z')
+			return (false);
+	}
+	//printf("------------------\n");
+	return (true);
+}
+
 long long	follow_map(char *commands, t_hash_table *map_ht)
 {
 	long long	res = 0;
 	char		*str;
-	char		instruction[4] = "AAA";
+	char		instructions[6][4] = 
+	{
+		"AAA",
+		"PVA",
+		"XLA",
+		"PTA",
+		"PRA",
+		"FBA"
+	};
 	size_t		i = 0;
 
-	while (1)
+	for (int j = 0; j < 6; j++)
 	{
-		str = ht_search(map_ht, instruction);
-		if (ft_strcmp(instruction, "ZZZ") == 0)
-			break ;
-		if (commands[i] == 'L')
+		res = 0;
+		while (1)
 		{
-			ft_memcpy(instruction, &str[0], 3);
-			instruction[3] = '\0';
+			str = ht_search(map_ht, instructions[j]);
+			//print_step(commands[i], instructions[j], str);
+			if (instructions[j][2] == 'Z')
+				break ;
+			if (commands[i] == 'L')
+			{
+				ft_memcpy(instructions[j], &str[0], 3);
+				instructions[j][3] = '\0';
+			}
+			else if (commands[i] == 'R')
+			{
+				ft_memcpy(instructions[j], &str[5], 3);
+				instructions[j][3] = '\0';
+			}
+			i++;
+			res++;
+			if (commands[i] != 'L' && commands[i] != 'R')
+				i = 0;
 		}
-		else if (commands[i] == 'R')
-		{
-			ft_memcpy(instruction, &str[5], 3);
-			instruction[3] = '\0';
-		}
-		//print_step(commands[i], instruction, str);
-		i++;
-		res++;
-		if (commands[i] != 'L' && commands[i] != 'R')
-			i = 0;
+		printf("Result[%d] = %lld\n", j, res);
 	}
-
 	return (res);
 }
 

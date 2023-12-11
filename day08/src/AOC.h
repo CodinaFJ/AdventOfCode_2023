@@ -1,5 +1,6 @@
-# include "../lib/libft/libft.h"
-# include "../lib/ft_printf/ft_printf.h"
+#include "../lib/libft/libft.h"
+#include "../lib/ft_printf/ft_printf.h"
+#include "hash_table.h"
 
 typedef struct s_hand
 {

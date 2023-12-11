@@ -28,12 +28,12 @@ SRC_DIR	=	./src/
 Sources & objects
 ########################################################################################
 
-FILES	=	main_HT					\
+FILES	=	main2					\
 			utils					\
 			hash_table				\
 			hash_table_utils		\
 			hash_table_management	\
-			hash_table_collisions
+			hash_table_collisions	\
 
 SRCS	=	$(addsuffix .c, $(FILES))
 OBJS	=	$(addprefix $(OBJ_DIR), $(addsuffix .o, $(FILES)))

@@ -37,7 +37,7 @@ void	handle_collision(t_hash_table *table, unsigned long hash, t_ht_item *item)
         table->overflow_buckets[hash] = head;
     }
     else 
-        ft_lstadd_front(&head, ft_lstnew(item));
+        ft_lstadd_back(&head, ft_lstnew(item));
 }
 
 void	free_overflow_buckets(t_hash_table *table)
