@@ -49,7 +49,10 @@ void	*free_htable(t_hash_table *table)
 	if (table->items != NULL)
 	{
 		while (i < table->size)
-			free_item(table->items[i++]);
+		{
+			free_item(table->items[i]);
+			i++;
+		}
     	free(table->items);
 	}
 	if (table->overflow_buckets != NULL)
@@ -64,23 +67,24 @@ void	print_table(t_hash_table *table)
 
 	if (table == NULL)
 	{
-		ft_printf("\nHash Table\n-------------------\nNULL TABLE\n");
-		ft_printf("-------------------\n\n");
+		printf("\nHash Table\n-------------------\nNULL TABLE\n");
+		printf("-------------------\n\n");
 		return ;
 	}
 	i = 0;
-	ft_printf("\nHash Table\n-------------------\n");
+	printf("\nHash Table\n-------------------\n");
 	while (i < table->size)
 	{
 		if (table->items && table->items[i])
         {
-            ft_printf("Index:%d, Key:%s, Value:%s\n",
+            printf("Index:%lld, Key:%s, Value:%s\n",
 				i,
 				table->items[i]->key,
 				table->items[i]->value);
         }
+		i++;
 	}
-	ft_printf("-------------------\n\n");
+	printf("-------------------\n\n");
 }
 
 void	print_search(t_hash_table* table, char* key)
@@ -89,7 +93,7 @@ void	print_search(t_hash_table* table, char* key)
 
 	val = ht_search(table, key);
     if (val == NULL)
-        ft_printf("Key:%s does not exist\n", key);
+        printf("Key:%s does not exist\n", key);
     else
-        ft_printf("Key:%s, Value:%s\n", key, val);
+        printf("Key:%s, Value:%s\n", key, val);
 }

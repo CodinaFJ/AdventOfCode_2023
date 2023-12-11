@@ -28,7 +28,7 @@ SRC_DIR	=	./src/
 Sources & objects
 ########################################################################################
 
-FILES	=	main					\
+FILES	=	main_HT					\
 			utils					\
 			hash_table				\
 			hash_table_utils		\

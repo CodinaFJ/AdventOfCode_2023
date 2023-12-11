@@ -27,7 +27,7 @@ typedef struct s_hash_table
     t_ht_item	**items;
 	t_list		**overflow_buckets;
     size_t		size;
-    int			count;
+    size_t			count;
 }		t_hash_table;
 
 /* ************************************************************************** */
@@ -44,6 +44,7 @@ char			*ht_search(t_hash_table *table, char *key);
 /* ************************************************************************** */
 
 unsigned long	hash_from_str(char *str);
+void			ht_delete(t_hash_table *table, char *key);
 
 /* ************************************************************************** */
 /*  Hash table collisions													  */

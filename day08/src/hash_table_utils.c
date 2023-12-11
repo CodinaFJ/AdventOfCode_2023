@@ -25,7 +25,7 @@ unsigned long	hash_from_str(char *str)
 }
 
 
-void	ft_delete_in_overflow_bucket(t_list **head, char *key)
+void	ft_delete_in_overflow_bucket(t_list **head, char *key, t_hash_table *table, unsigned long hash)
 {
 	t_list	*curr;
 	t_list	*prev;
@@ -39,7 +39,7 @@ void	ft_delete_in_overflow_bucket(t_list **head, char *key)
 			if (prev == NULL)
 			{
 				// First element of the chain.
-				*head = curr->next;
+				table->overflow_buckets[hash] = curr->next;
 				curr->next = NULL;
 				ft_lstclear(&curr, &free_item);
 				return;
@@ -93,5 +93,5 @@ void	ht_delete(t_hash_table *table, char *key)
 		}
 	}
 	else if (head != NULL)
-		ft_delete_in_overflow_bucket(&head, key);
+		ft_delete_in_overflow_bucket(&head, key, table, hash);
 }

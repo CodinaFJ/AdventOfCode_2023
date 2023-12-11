@@ -14,21 +14,17 @@
 
 t_ht_item	*create_item(char *key, char *value)
 {
-	size_t		key_len;
-	size_t		value_len;
 	t_ht_item	*item;
 
-	key_len = ft_strlen(key);
-	value_len = ft_strlen(value);
     item = (t_ht_item *) malloc(sizeof(t_ht_item));
 	if (item == NULL)
 		return (NULL);
-    item->key = (char *) malloc(key_len + 1);
-    item->value = (char *) malloc(value_len + 1);
+    item->key = (char *) malloc(ft_strlen(key) + 1);
+    item->value = (char *) malloc(ft_strlen(value) + 1);
 	if (item->key == NULL || item->value == NULL)
 		return (free_item_return(item));
-    ft_strlcpy(item->key, key, key_len + 1);
-    ft_strlcpy(item->value, value, value_len + 1);
+    ft_strcpy(item->key, key);
+    ft_strcpy(item->value, value);
     return (item);
 }
 
