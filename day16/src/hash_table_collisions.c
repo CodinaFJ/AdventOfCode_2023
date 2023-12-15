@@ -23,7 +23,7 @@ t_list	**create_overflow_buckets(t_hash_table *table)
 	i = 0;
     while (i < table->size)
 	{
-        buckets[i++] = NULL;
+        buckets[i] = NULL;
 		i++;
 	}
     return (buckets);
@@ -32,6 +32,7 @@ t_list	**create_overflow_buckets(t_hash_table *table)
 void	handle_collision(t_hash_table *table, unsigned long hash, t_ht_item *item)
 {
 	t_list*	head;
+	t_list*	node;
 	
 	head = table->overflow_buckets[hash];
     if (head == NULL)
@@ -39,8 +40,21 @@ void	handle_collision(t_hash_table *table, unsigned long hash, t_ht_item *item)
         head = ft_lstnew(item);
         table->overflow_buckets[hash] = head;
     }
-    else 
-        ft_lstadd_back(&head, ft_lstnew(item));
+	else
+	{
+		node = head;
+		while (node != NULL)
+		{
+			if (ft_strcmp(((t_ht_item *) node->content)->key, item->key) == 0)
+			{
+				ft_strcpy(((t_ht_item *) node->content)->value, item->value);
+				free_item(item);
+				return ;
+			}
+			node = node->next;
+		}
+		ft_lstadd_back(&head, ft_lstnew(item));
+	}  
 }
 
 void	free_overflow_buckets(t_hash_table *table)
