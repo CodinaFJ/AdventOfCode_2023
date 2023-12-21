@@ -19,7 +19,7 @@ void	print_module(t_module module)
 	printf("Module: [%c]%s -> ", module.module_type, module.name);
 	for (int i = 0; module.outputs[i] != NULL; i++)
 		printf("%s ", module.outputs[i]);
-	printf("\n\t in_pulse: %d  send_pulse: %d\n", module.incoming_pulse, module.send_pulse);
+	//print_array((long long *) module.pulse, 10000);
 	if (module.module_type == FLIP_FLOP)
 		printf("\tFlipFlop State: %d\n", module.ff_state);
 	else if (module.module_type == CONJUCTION)
@@ -55,21 +55,6 @@ t_module	*find_module(t_module *modules, char *name)
 	return (NULL);
 }
 
-t_module	*get_module_priority(t_module *modules, int priority)
-{
-	for(int i = 0; i < N_MODULES; i++)
-	{
-		if (modules[i].send_priority == priority)
-		{
-			(&modules[i])->send_priority = 0;
-			(&modules[i])->in_priority = 0;
-			return (&modules[i]);
-		}
-	}
-	//printf("\n[ERROR] module by priority not found -> %d\n", priority);
-	return (NULL);
-}
-
 void	add_module(t_module *modules, size_t i, char *str)
 {
 	char			**strs;
@@ -96,12 +81,12 @@ void	add_module(t_module *modules, size_t i, char *str)
 	modules[i].name = name;
 	modules[i].outputs = outputs;
 	modules[i].module_type = type;
-	modules[i].incoming_pulse = NONE;
-	modules[i].send_pulse = NONE;
+	modules[i].pulse = malloc(sizeof(int) * 100000);
+	ft_bzero(modules[i].pulse, sizeof(int) * 100000);
+	modules[i].pulse_front = 0;
+	modules[i].pulse_rear = 0;
 	modules[i].ff_state = false;
 	modules[i].cjt_inputs_states = NULL;
-	modules[i].in_priority = 0;
-	modules[i].send_priority = 0;
 	if (type == CONJUCTION)
 		modules[i].cjt_inputs_states = create_table(HT_CAPACITY);
 	free_strs(strs);

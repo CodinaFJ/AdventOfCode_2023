@@ -24,13 +24,12 @@ typedef struct s_module
 {
 	char			*name;
 	char			**outputs;
-	e_pulse			incoming_pulse;
-	e_pulse			send_pulse;
+	e_pulse			*pulse;
+	size_t			pulse_front;
+	size_t			pulse_rear;
 	e_module_type	module_type;
 	en_bool			ff_state;
 	t_hash_table	*cjt_inputs_states;
-	int				in_priority;
-	int				send_priority;
 }	t_module;
 
 typedef struct s_position
@@ -46,7 +45,6 @@ void	print_modules(t_module *modules);
 void	add_module(t_module *modules, size_t i, char *str);
 void	fill_conjuction_inputs(t_module *modules, t_hash_table *modules_types_table, size_t size);
 t_module	*find_module(t_module *modules, char *name);
-t_module	*get_module_priority(t_module *modules, int priority);
 
 //DAY20
 

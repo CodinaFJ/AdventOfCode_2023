@@ -2,7 +2,7 @@
 
 long long	g_low_pulses = 0;
 long long	g_high_pulses = 0;
-int			g_priority_queue = 1;
+t_queue		*g_queue;
 
 void	send_pulse(e_pulse pulse, t_module *module_sender, t_module *module_receiver)
 {
@@ -23,9 +23,11 @@ void	send_pulse(e_pulse pulse, t_module *module_sender, t_module *module_receive
 		pulse_c[1] = '\0';
 		ht_insert(module_receiver->cjt_inputs_states, module_sender->name, pulse_c);
 	}
-	module_receiver->incoming_pulse = pulse;
-	module_receiver->in_priority = g_priority_queue;
-	g_priority_queue++;
+	if (pulse == HIGH && module_receiver->module_type == FLIP_FLOP)
+		return ;
+	module_receiver->pulse[module_receiver->pulse_rear] = pulse;
+	module_receiver->pulse_rear++;
+	enqueue(g_queue, module_receiver->name);
 }
 
 void	process_pulse_flip_flop(e_pulse pulse, t_module *module_sender, t_module *modules)
@@ -102,25 +104,18 @@ void	process_pulse_broadcast(e_pulse pulse, t_module *module_sender, t_module *m
 
 void	process_pulse(t_module *module_sender, t_module *modules)
 {
-	if (module_sender->send_pulse == NONE)
+	e_pulse pulse;
+
+	pulse = module_sender->pulse[module_sender->pulse_front];
+	module_sender->pulse_front++;
+	if (pulse == NONE)
 		return ;
 	if (module_sender->module_type == FLIP_FLOP)
-		process_pulse_flip_flop(module_sender->send_pulse, module_sender, modules);
+		process_pulse_flip_flop(pulse, module_sender, modules);
 	else if (module_sender->module_type == CONJUCTION)
-		process_pulse_conjuction(module_sender->send_pulse, module_sender, modules);
+		process_pulse_conjuction(pulse, module_sender, modules);
 	else if (module_sender->module_type == BROADCAST)
-		process_pulse_broadcast(module_sender->send_pulse, module_sender, modules);
-	module_sender->send_pulse = NONE;
-}
-
-void	prepare_for_sending(t_module *module)
-{
-	if (module->incoming_pulse == NONE)
-		return ;
-	module->send_pulse = module->incoming_pulse;
-	module->incoming_pulse = NONE;
-	module->send_priority = module->in_priority;
-	module->in_priority = 0;
+		process_pulse_broadcast(pulse, module_sender, modules);
 }
 
 int	main(int argc, char **argv)
@@ -153,41 +148,26 @@ int	main(int argc, char **argv)
 		i++;
 	}
 	fill_conjuction_inputs(modules, modules_types_table, i);
+	g_queue = queue_create(200);
 	for (int k = 0; k < 1000; k++)
 	{
-		//printf("BUTTON!!!\n");
+		t_module	*broadcaster_module = find_module((t_module *) modules, "broadcaster");
+		broadcaster_module->pulse[broadcaster_module->pulse_rear] = LOW;
+		broadcaster_module->pulse_rear++;
 		g_low_pulses++;
-		find_module((t_module *) modules, "broadcaster")->send_pulse = LOW;
-		find_module((t_module *) modules, "broadcaster")->send_priority = g_priority_queue;
-		g_priority_queue++;
-		for (i = 0; i < 300; i++)
+		enqueue(g_queue, "broadcaster");
+		//print_modules(modules);
+		while (!queue_is_empty(g_queue))
 		{
-			//print_modules((t_module *) modules);
-			//printf("Low pulses: %lld | High pulses: %lld \n", g_low_pulses, g_high_pulses);
-			//print_modules((t_module *) modules);
-			int	aux = g_priority_queue;
-			g_priority_queue = 1;
-			for(int j = 1; j < aux + 1; j++)
-			{
-				//printf("g_priority: %d\n", g_priority_queue);
-				t_module	*module_aux = get_module_priority((t_module *) modules, j);
-				if (module_aux == NULL)
-					break ;
-				process_pulse(module_aux, (t_module *) modules);
-			}
-			for(int j = 0; j < N_MODULES; j++)
-				prepare_for_sending((t_module *) &modules[j]);
-			
-		}
-		//print_modules((t_module *) modules);
-		//printf("Low pulses: %lld | High pulses: %lld \n", g_low_pulses, g_high_pulses);
-		/*for(int j = 0; j < N_MODULES; j++)
-			process_pulse((t_module *) &modules[j], (t_module *) modules);*/
+			char	*name = dequeue(g_queue);
+			process_pulse(find_module(modules, name), modules);
+			free(name);
+		}			
 	}
-	//print_modules((t_module *) modules);
 	(void) res;
 	printf("Low pulses: %lld | High pulses: %lld | ", g_low_pulses, g_high_pulses);
 	printf("Result: %lld\n", g_low_pulses * g_high_pulses);
+	//free_queue(g_queue);
 	free_htable(modules_types_table);
 	fclose(f);
 	exit (0);
