@@ -1,7 +1,9 @@
 #include "AOC.h"
+//mcm\:\:13964754375,\:12381131075,\:13251459085,\:12023298450
 
 long long	g_low_pulses = 0;
 long long	g_high_pulses = 0;
+long long	g_button_presses = 0;
 t_queue		*g_queue;
 
 void	send_pulse(e_pulse pulse, t_module *module_sender, t_module *module_receiver)
@@ -27,6 +29,11 @@ void	send_pulse(e_pulse pulse, t_module *module_sender, t_module *module_receive
 		return ;
 	module_receiver->pulse[module_receiver->pulse_rear] = pulse;
 	module_receiver->pulse_rear++;
+	if (ft_strcmp(module_receiver->name, "th") == 0  && pulse == HIGH)
+	{
+		print_module(*module_receiver);
+		printf("Cycle: %lld\n", g_button_presses);
+	}
 	enqueue(g_queue, module_receiver->name);
 }
 
@@ -149,12 +156,13 @@ int	main(int argc, char **argv)
 	}
 	fill_conjuction_inputs(modules, modules_types_table, i);
 	g_queue = queue_create(200);
-	for (int k = 0; k < 1000; k++)
+	for (int k = 0; k < 100000; k++)
 	{
 		t_module	*broadcaster_module = find_module((t_module *) modules, "broadcaster");
 		broadcaster_module->pulse[broadcaster_module->pulse_rear] = LOW;
 		broadcaster_module->pulse_rear++;
 		g_low_pulses++;
+		g_button_presses++;
 		enqueue(g_queue, "broadcaster");
 		//print_modules(modules);
 		while (!queue_is_empty(g_queue))
