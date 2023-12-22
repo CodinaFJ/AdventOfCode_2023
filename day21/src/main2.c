@@ -106,8 +106,8 @@ int	main(int argc, char **argv)
 	even_tiles_n *= even_tiles_n;
 	printf("Size %d Grid width %lld Odd tiles %lld Even tiles %lld\n", len, grid_width, odd_tiles_n, even_tiles_n);
 
-	long long tile_even = solve_pos((char **) strs, (len * 2) / 2, start_pos.i, start_pos.j);
-	long long tile_odd = solve_pos((char **) strs, (len * 2) / 2 + 1, start_pos.i, start_pos.j);
+	long long tile_odd = solve_pos((char **) strs, (len * 2) / 2, start_pos.i, start_pos.j);
+	long long tile_even = solve_pos((char **) strs, (len * 2) / 2 + 1, start_pos.i, start_pos.j);
 
 	long long tile_top = solve_pos((char **) strs, len - 1, len - 1, start_pos.j);
 	long long tile_right = solve_pos((char **) strs, len - 1, start_pos.i, 0);
@@ -124,9 +124,9 @@ int	main(int argc, char **argv)
 	long long tile_lg_br = solve_pos((char **) strs, (3 * len / 2) - 1, 0, 0);
 	long long tile_lg_bl = solve_pos((char **) strs, (3 * len / 2) - 1, 0, len - 1);
 
-	res = (tile_even * even_tiles_n) + (tile_odd * odd_tiles_n) 
-			+ tile_bot + tile_left + tile_right + tile_top 
-			+ ((tile_sm_tr + tile_sm_tl + tile_sm_br + tile_sm_bl) * (grid_width + 1)) 
+	res = (tile_odd * odd_tiles_n) + (tile_even * even_tiles_n) 
+			+ tile_bot + tile_left + tile_right + tile_top
+			+ ((tile_sm_tr + tile_sm_tl + tile_sm_br + tile_sm_bl) * (grid_width + 1))
 			+ ((tile_lg_tr + tile_lg_tl + tile_lg_br + tile_lg_bl) * grid_width);
 	(void) tile_bot;
 	printf("res: %lld\n", res);
