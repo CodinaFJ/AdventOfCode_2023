@@ -48,19 +48,7 @@ void print_array_int(int *arr, int len)
 {
 	for (int i = 0; i < len; i++)
 	{
-		printf("%d ", arr[i]);
-	}
-	printf("\n");
-}
-
-void print_array_path(int *arr, int len)
-{
-	for (int i = 0; i < len; i++)
-	{
-		if (arr[i] == 0)
-			printf("# ");
-		else
-			printf(". ");
+		printf("%d\t", arr[i]);
 	}
 	printf("\n");
 }

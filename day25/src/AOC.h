@@ -3,17 +3,18 @@
 #include "hash_table.h"
 #include "queue.h"
 #include <math.h>
-#define SIZE 500
+#include <time.h>
+#define SIZE 5000
 
-typedef struct s_node
+typedef struct s_edge
 {
-	int				i;
-	int				j;
-	int				cost;
-	int				weight;
-	struct s_node	*previous;
-	en_bool			closed;
-}	t_node;
+	char	*vertex_a;
+	char	*vertex_b;
+	char	*vertex_a_og;
+	char	*vertex_b_og;
+	char	*chain_vertex_a;
+	char	*chain_vertex_b;
+}	t_edge;
 
 typedef struct s_pos2d
 {
@@ -21,20 +22,17 @@ typedef struct s_pos2d
 	int	j;
 }	t_pos2d;
 
-//DAY17
-
-//DIJKSTRA
-t_list		*dijkstra_find_path(int **map, int size, t_pos2d start, t_pos2d end);
-t_node		*new_node(int i, int j, int weight);
-t_node		***create_nodes_matrix(int size, int **map);
-void		free_nodes_matrix(t_node ***node_matrix);
-void		print_node_matrix_costs(t_node ***node_matrix);
-void		print_nodes_list(t_list *list);
-void		bake_neighbours_list_heat(t_list *neighbours_list, t_list *open_list, t_node *current_node);
-void 		print_array_path(int *arr, int len);
-en_bool		evaluate_next_node(t_node *next_node, t_node *current_node);
-t_node		*node_dup(t_node *node);
-//DAY17
+//DAY25
+t_edge		*new_edge(char *vertex_a, char *vertex_b);
+void		*dup_edge(void *src);
+int			edges_cmp(void *edge_a, void *edge_b);
+void		free_edge(void *edge);
+void		print_edge(t_edge *edge);
+void		print_edges(t_list *edges);
+void		print_edges_og(t_list *edges);
+void		print_edge_chain(t_edge *edge);
+void		print_edges_chains(t_list *edges);
+//DAY25
 
 void		free_strs(char	**strs);
 int			strs_len(char **strs);
@@ -56,5 +54,8 @@ void		ft_strsncpy(char **dst, char **src, int size);
 char		**ft_strsdup(char **strs);
 
 // LISTS
-int			ft_lst_contains(t_list *lst, void *content);
-t_list		*ft_lst_remove(t_list *lst, void *content);
+int			ft_lst_contains(t_list *lst, void *content, int (*compare)(void *, void *));
+t_list		*ft_lst_remove(t_list *lst, void *content, int (*compare)(void *, void *));
+t_list		*ft_lst_dup(t_list *lst_src, void *(*dup)(void *));
+void		*ft_lst_remove_at(t_list **lst, int index);
+t_list		*ft_lst_remove_all(t_list *lst, void *content, int (*compare)(void *, void *));

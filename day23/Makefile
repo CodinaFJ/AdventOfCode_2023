@@ -29,6 +29,10 @@ Sources & objects
 ########################################################################################
 
 FILES	=	main					\
+			dijkstra				\
+			dijkstra_node			\
+			dijkstra_prints			\
+			lst_utils				\
 			queue					\
 			utils					\
 			utils_strs				\
