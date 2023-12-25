@@ -143,6 +143,68 @@ int min_cut_karger(t_list **edges_lst)
 	return (size);
 }
 
+int	count_vertex(t_list *edges_lst)
+{
+	t_hash_table	*ht;
+	int				contained = 0;
+	t_edge			*edge;
+
+	ht = create_table(SIZE);
+	while (edges_lst != NULL)
+	{
+		edge = edges_lst->content;
+		if (ht_search(ht, edge->vertex_a_og) == NULL)
+		{
+			ht_insert(ht, edge->vertex_a_og, "");
+			contained++;
+		}
+		if (ht_search(ht, edge->vertex_b_og) == NULL)
+		{
+			ht_insert(ht, edge->vertex_b_og, "");
+			contained++;
+		}
+		edges_lst = edges_lst->next;
+	}
+	free_htable(ht);
+	return (contained);
+}
+
+void	divide_subsets(t_list *edges_lst)
+{
+	t_list	*subset;
+	t_list	*node_subset;
+	t_edge	*edge_og;
+	t_edge	*edge_subset;
+
+	subset = NULL;
+	edge_og = edges_lst->content;
+	edge_og = ft_lst_pop(&edges_lst, edge_og, &edge_contains_one_vertex);
+	ft_lstadd_back(&subset, ft_lstnew(edge_og));
+	node_subset = subset;
+	while (node_subset != NULL)
+	{
+		edge_subset = node_subset->content;
+		edge_og = ft_lst_pop(&edges_lst, edge_subset, &edge_contains_one_vertex);
+		while (edge_og != NULL)
+		{
+			if (!ft_lst_contains(subset, edge_og, &edges_cmp))
+				ft_lstadd_back(&subset, ft_lstnew(edge_og));
+			edge_og = ft_lst_pop(&edges_lst, edge_subset, &edge_contains_one_vertex);
+		}
+		node_subset = node_subset->next;
+	}
+
+	int vertex_a = count_vertex(edges_lst);
+	int vertex_b = count_vertex(subset);
+	printf("SUBSET 1: \n");
+	print_edges_og(edges_lst);
+	printf("Vertex: %d\n\n", vertex_a);
+	printf("SUBSET 2: \n");
+	print_edges_og(subset);
+	printf("Vertex: %d\n\n", vertex_b);
+	printf("Result: %d", vertex_a * vertex_b);
+}
+
 int	main(int argc, char **argv)
 {
 	FILE			*f;
@@ -183,8 +245,16 @@ int	main(int argc, char **argv)
 		size = min_cut_karger(&edges_lst_cpy);
 	}
 	print_edges_og(edges_lst_cpy);
-	print_edges_chains(edges_lst_cpy);
-	printf("res: %lld\n", res);
+	while(edges_lst_cpy != NULL)
+	{
+		t_edge	*aux_edge = new_edge(((t_edge *)edges_lst_cpy->content)->vertex_a_og, ((t_edge *)edges_lst_cpy->content)->vertex_b_og);
+		ft_lst_remove(edges_lst, aux_edge, &edges_cmp);
+		free_edge(aux_edge);
+		edges_lst_cpy = edges_lst_cpy->next;
+	}
+	print_edges(edges_lst);
+	divide_subsets(edges_lst);
+	//printf("res: %lld\n", res);
 	fclose(f);
 	exit (0);
 }

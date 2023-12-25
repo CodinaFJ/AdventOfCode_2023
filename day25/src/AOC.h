@@ -32,6 +32,7 @@ void		print_edges(t_list *edges);
 void		print_edges_og(t_list *edges);
 void		print_edge_chain(t_edge *edge);
 void		print_edges_chains(t_list *edges);
+int 		edge_contains_one_vertex(void *edge_a, void *vertex);
 //DAY25
 
 void		free_strs(char	**strs);
@@ -58,4 +59,5 @@ int			ft_lst_contains(t_list *lst, void *content, int (*compare)(void *, void *)
 t_list		*ft_lst_remove(t_list *lst, void *content, int (*compare)(void *, void *));
 t_list		*ft_lst_dup(t_list *lst_src, void *(*dup)(void *));
 void		*ft_lst_remove_at(t_list **lst, int index);
+void		*ft_lst_pop(t_list **lst, void *content, int (*compare)(void *, void *));
 t_list		*ft_lst_remove_all(t_list *lst, void *content, int (*compare)(void *, void *));

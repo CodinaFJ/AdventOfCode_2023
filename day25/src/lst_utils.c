@@ -43,20 +43,48 @@ t_list	*ft_lst_remove(t_list *lst, void *content, int (*compare)(void *, void *)
 		return (aux);
 	}
 	node = lst;
-	while (node != NULL)
+	while (node != NULL && node->next != NULL)
 	{
-		if (compare(content, node->content))
+		if (compare(content, node->next->content))
 		{
 			aux = node->next;
-			if (aux != NULL)
-				node->next = aux->next;
-			else
-				node->next = NULL;
+			node->next = aux->next;
+			free_edge(aux->content);
+			free(aux);
 			return (lst);
 		}
 		node = node->next;
 	}
 	return (lst);
+}
+
+void	*ft_lst_pop(t_list **lst, void *content, int (*compare)(void *, void *))
+{
+	void	*aux;
+	t_list	*node_aux;
+	t_list	*node;
+
+	aux = NULL;
+	if (compare(content, (*lst)->content))
+	{
+		aux = (*lst)->content;
+		*lst = (*lst)->next;
+		return (aux);
+	}
+	node = *lst;
+	while (node != NULL && node->next != NULL)
+	{
+		if (compare(content, node->next->content))
+		{
+			node_aux = node->next;
+			node->next = node_aux->next;
+			aux = node_aux->content;
+			free(node_aux);
+			return (aux);
+		}
+		node = node->next;
+	}
+	return (NULL);
 }
 
 t_list	*ft_lst_remove_all(t_list *lst, void *content, int (*compare)(void *, void *))

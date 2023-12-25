@@ -61,6 +61,23 @@ int	edges_cmp(void *edge_a, void *edge_b)
 	return (0);
 }
 
+int edge_contains_one_vertex(void *edge_a, void *edge_b)
+{
+	t_edge	*edge_1;
+	t_edge	*edge_2;
+
+	edge_1 = (t_edge *) edge_a;
+	edge_2 = (t_edge *) edge_b;
+
+	if (ft_strcmp(edge_1->vertex_a, edge_2->vertex_a) == 0
+		|| ft_strcmp(edge_1->vertex_b, edge_2->vertex_b) == 0)
+		return (1);
+	if (ft_strcmp(edge_1->vertex_b, edge_2->vertex_a) == 0
+		|| ft_strcmp(edge_1->vertex_a, edge_2->vertex_b) == 0)
+		return (1);
+	return (0);
+}
+
 void	free_edge(void *edge)
 {
 	t_edge *edge_free;
@@ -114,7 +131,7 @@ void	print_edges_chains(t_list *edges)
 	{
 		print_edge_chain((t_edge *) edges->content);
 		edges = edges->next;
-		
+
 	}
 	printf("\n");
 }
