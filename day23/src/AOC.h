@@ -3,7 +3,7 @@
 #include "hash_table.h"
 #include "queue.h"
 #include <math.h>
-#define SIZE 500
+#define SIZE 1000
 
 typedef struct s_node
 {

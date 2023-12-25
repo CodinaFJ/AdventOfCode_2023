@@ -19,8 +19,8 @@ t_node	*new_node(int i, int j, char c)
 	node = malloc(sizeof(t_node));
 	node->i = i;
 	node->j = j;
-	node->cost = 0;
-	node->weight = 1;
+	node->cost = 9999;
+	node->weight = -1;
 	node->previous = NULL;
 	node->closed = false;
 	node->c = c;

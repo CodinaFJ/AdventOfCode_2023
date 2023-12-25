@@ -28,7 +28,7 @@ SRC_DIR	=	./src/
 Sources & objects
 ########################################################################################
 
-FILES	=	main					\
+FILES	=	main2					\
 			dijkstra				\
 			dijkstra_node			\
 			dijkstra_prints			\
