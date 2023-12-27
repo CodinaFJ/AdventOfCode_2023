@@ -12,144 +12,119 @@
 
 #include "AOC.h"
 
-t_list	*calculate_path(t_node *end_node)
+en_bool	assert_bounds(int i, int j, int size)
 {
-	t_list	*path;
-	t_node	*aux_node;
-
-	if (end_node->previous == NULL)
-		return (NULL);
-	path = ft_lstnew(end_node);
-	aux_node = end_node->previous;
-	while (aux_node != NULL)
-	{
-		ft_lstadd_front(&path, ft_lstnew(aux_node));
-		aux_node = aux_node->previous;
-	}
-	return (path);
-}
-
-t_list	*get_min_cost_node(t_list *nodes_list)
-{
-	t_list	*min_cost_lst_node;
-	t_node	*aux_node;
-
-	min_cost_lst_node = nodes_list;
-	while (nodes_list != NULL)
-	{
-		aux_node = (t_node *) nodes_list->content;
-		if (aux_node->cost < ((t_node *) min_cost_lst_node->content)->cost)
-			min_cost_lst_node = nodes_list;
-		nodes_list = nodes_list->next;
-	}
-	return (min_cost_lst_node);
-}
-
-int	evaluate_neighbour(int i, int j, t_node ***node_matrix, t_node *current_node)
-{
-	if (abs(i + j) != 1)
-		return (false);
-	if (current_node->i + i < 0 || node_matrix[current_node->i + i] == NULL || current_node->j + j < 0 || node_matrix[current_node->i + i][current_node->j + j] == NULL)
-		return (false);
-	if (!evaluate_next_node(node_matrix[current_node->i + i][current_node->j + j], current_node))
+	if (i < 0 || j < 0 || i >=size || j >= size)
 		return (false);
 	return (true);
 }
 
-t_list	*create_neighbours_list(t_node ***node_matrix, t_node *current_node)
+void calc_movement(int *i, int *j, t_movement movement)
 {
-	t_list	*neighbours_list;
-	t_list	*aux;
-
-	neighbours_list = ft_lstnew(NULL); // TODO: this should not be necessary
-	for (int i = -1; i < 2; i++)
-	{
-		for (int j = -1; j < 2; j++)
-		{
-			if (evaluate_neighbour(i, j, node_matrix, current_node))
-				ft_lstadd_back(&neighbours_list, ft_lstnew(node_matrix[current_node->i + i][current_node->j + j]));
-		}
-	}
-	aux = neighbours_list->next;
-	free(neighbours_list); // TODO: together with this
-	return (aux);
+	if (movement == NORTH) (*i) = (*i) - 1;
+	else if (movement == EAST) (*j) = (*j) + 1;
+	else if (movement == SOUTH) (*i) = (*i) + 1;
+	else if (movement == WEST) (*j) = (*j) - 1;
 }
 
-int	ft_lst_contains_node(t_list *list, t_node *node)
+t_list	*get_min_cost_node(t_list **nodes_list)
 {
-	t_list	*aux;
-	t_node	*list_node;
-
-	list_node = list->content;
-	if (list != NULL && list_node->i == node->i && list_node->j == node->j && list_node->previous->i == node->previous->i && list_node->previous->j == node->previous->j)
-		return (1);
-	aux = list;
-	while (aux != NULL)
+	for (int i = 0; i < 1000; i++)
 	{
-		list_node = aux->content;
-		if (list_node->i == node->i && list_node->j == node->j && list_node->previous->i == node->previous->i && list_node->previous->j == node->previous->j)
-			return (1);
-		aux = aux->next;
+		if (nodes_list[i] != NULL)
+			return (nodes_list[i]);
 	}
-	return (0);
+	return (NULL);
 }
 
-void	bake_neighbours_list(t_list *neighbours_list, t_list *open_list, t_node *current_node)
+void	add_turn_nodes(t_node *current_node, int min_movements, int size, t_list **open_list, int **map, t_list *closed_list)
 {
-	t_node	*neighbour_node;
-	t_list	*neighbour_list_node;
-
-	neighbour_list_node = neighbours_list;
-	while (neighbour_list_node != NULL)
+	if (current_node->straight_movements < min_movements)
+		return ;
+	for (int mov = 0; mov < 4; mov++)
 	{
-		neighbour_node = neighbour_list_node->content;
-		if (neighbour_node == NULL || neighbour_node->closed)
+		if ((int)(current_node->current_movement % 2) == mov % 2) // If moving in same direction forwards or backwards
+			continue ;
+		int	new_i = current_node->i;
+		int new_j = current_node->j;
+		calc_movement(&new_i, &new_j, mov);
+		if (assert_bounds(new_i, new_j, size))
 		{
-			neighbour_list_node = neighbour_list_node->next;
-			continue;
+			t_node *next_node = new_node(new_i, new_j, current_node->cost + map[new_i][new_j], mov, 1);
+			if (!ft_lst_contains(closed_list, next_node, &node_cmp))
+				ft_lstadd_front(&(open_list[next_node->cost]), ft_lstnew(next_node));
+			else
+				free(next_node);
 		}
-		if (current_node->cost + neighbour_node->weight < neighbour_node->cost)
-		{
-			if (neighbour_node->previous != NULL && neighbour_node->previous != current_node)
-			{
-				neighbour_node = neighbour_node;
-			}
-			neighbour_node->cost = current_node->cost + neighbour_node->weight;
-			neighbour_node->previous = current_node;
-			if (!ft_lst_contains_node(open_list, neighbour_node))
-				ft_lstadd_back(&open_list, ft_lstnew(neighbour_node));
-		}
-		neighbour_list_node = neighbour_list_node->next;
 	}
-	ft_lstclear(&neighbours_list, NULL);
 }
 
-void	bake_open_list(t_list *open_list, t_node ***nodes_matrix, t_pos2d end)
+void	bake_open_list(t_list **open_list, int **map, int size, t_pos2d end, int min_movements, int max_movements)
 {
 	t_node	*current_node;
-	t_list	*neighbours_list;
+	t_list	*closed_list;
 
-	while (open_list != NULL)
+	closed_list = NULL;
+	for (int i = 0; i < 1000; i++)
 	{
-		current_node = get_min_cost_node(open_list)->content;
-		printf("(%d, %d) Selected for min cost -> %d\n", current_node->i, current_node->j, current_node->cost);
-		if (current_node->i == end.i && current_node->j == end.j)
-			return ;
-		neighbours_list = create_neighbours_list(nodes_matrix, current_node);
-		bake_neighbours_list_heat(neighbours_list, open_list, current_node);
-		open_list = ft_lst_remove(open_list, current_node);
-		//current_node->closed = true;
-	}
+		while (open_list[i] != NULL)
+		{
+			current_node = open_list[i]->content;
+			if (current_node->cost % 50 == 0)
+				printf("(%d, %d) Selected for min cost -> %d\n", current_node->i, current_node->j, current_node->cost);
+			
+			if (current_node->i == end.i && current_node->j == end.j && current_node->straight_movements >= min_movements)
+			{
+				printf("Solution found: %d\n", current_node->cost);
+				ft_lstclear(&closed_list, &free);
+				return ;
+			}
+			if (ft_lst_contains(closed_list, current_node, &node_cmp))
+			{
+				ft_lstadd_front(&closed_list, ft_lstnew(current_node));
+				open_list[current_node->cost] = ft_lst_remove(open_list[current_node->cost], current_node);
+				continue;
+			}
+			if (current_node->current_movement != NONE && current_node->straight_movements < max_movements) //Keep moving straight
+			{
+				int	new_i = current_node->i;
+				int new_j = current_node->j;
+				calc_movement(&new_i, &new_j, current_node->current_movement);
+				if (assert_bounds(new_i, new_j, size))
+				{
+					t_node *next_node = new_node(new_i, new_j, current_node->cost + map[new_i][new_j], current_node->current_movement, current_node->straight_movements + 1);
+					if (!ft_lst_contains(closed_list, next_node, &node_cmp))
+						ft_lstadd_front(&(open_list[next_node->cost]), ft_lstnew(next_node));
+					else
+						free(next_node);
+				}
+			}
+			add_turn_nodes(current_node, min_movements, size, open_list, map, closed_list);
+			ft_lstadd_front(&closed_list, ft_lstnew(current_node));
+			open_list[current_node->cost] = ft_lst_remove(open_list[current_node->cost], current_node);
+		}
+	}	
+	ft_lstclear(&closed_list, &free);
 }	
 
-t_list	*dijkstra_find_path(int **map, int size, t_pos2d start, t_pos2d end)
+void	dijkstra_find_path(int **map, int size, t_pos2d start, t_pos2d end, int min_movements, int max_movements)
 {
-	t_node	***nodes_matrix;
-	t_list	*open_list;
-;
-	nodes_matrix = create_nodes_matrix(size, map);
-	nodes_matrix[start.i][start.j]->cost = 0;
-	open_list = ft_lstnew((void *) nodes_matrix[start.i][start.j]);
-	bake_open_list(open_list, nodes_matrix, end);
-	return (calculate_path(nodes_matrix[end.i][end.j]));
+	t_list	**open_list;
+	t_node	*start_node;
+
+	open_list = malloc(sizeof(t_list *) * 1000);
+	for (int i = 0; i < 1000; i++)
+	{
+		open_list[i] = NULL;
+	}
+	start_node = new_node(start.i, start.j, 0, EAST, 0);
+	ft_lstadd_front(&(open_list[start_node->cost]), ft_lstnew((void *) start_node));
+	start_node = new_node(start.i, start.j, 0, SOUTH, 0);
+	ft_lstadd_front(&(open_list[start_node->cost]), ft_lstnew((void *) start_node));
+	bake_open_list( open_list, map, size, end, min_movements, max_movements);
+	for (int i = 0; i < 1000; i++)
+	{
+		ft_lstclear(&(open_list[i]), &free);
+	}
+	free(open_list);
 }

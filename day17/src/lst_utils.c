@@ -12,16 +12,18 @@
 
 #include"AOC.h"
 
-int	ft_lst_contains(t_list *lst, void *content)
+int	ft_lst_contains(t_list *lst, void *content, int (*compare)(void *, void *))
 {
 	t_list	*aux;
 
-	if (lst != NULL && lst->content == content)
+	if (lst != NULL && compare(content, lst->content))
+	{
 		return (1);
+	}
 	aux = lst;
 	while (aux != NULL)
 	{
-		if (aux->content == content)
+		if (compare(content, aux->content))
 			return (1);
 		aux = aux->next;
 	}

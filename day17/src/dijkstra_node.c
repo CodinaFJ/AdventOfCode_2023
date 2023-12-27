@@ -17,45 +17,37 @@ t_node	*node_dup(t_node *node)
 	t_node *node_dup;
 
 	node_dup = malloc(sizeof(t_node));
-	node_dup->closed = node->closed;
 	node_dup->cost = node->cost;
 	node_dup->i = node->i;
 	node_dup->j = node->j;
-	node_dup->previous = node->previous;
-	node_dup->weight = node->weight;
+	node_dup->current_movement = node->current_movement;
+	node_dup->straight_movements = node->straight_movements;
 	return (node_dup);
 }
 
-t_node	*new_node(int i, int j, int weight)
+t_node	*new_node(int i, int j, int cost, t_movement movement, int straight_movements)
 {
 	t_node	*node;
 	
 	node = malloc(sizeof(t_node));
 	node->i = i;
 	node->j = j;
-	node->cost = 99999;
-	node->weight = weight;
-	node->previous = NULL;
-	node->closed = false;
+	node->cost = cost;
+	node->current_movement = movement;
+	node->straight_movements = straight_movements;
 	return (node);
 }
 
-t_node	***create_nodes_matrix(int size, int **map)
+int	node_cmp(void *node_a, void *node_b)
 {
-	t_node	***node_matrix;
-
-	node_matrix = malloc(sizeof(t_node **) * (size + 1));
-	node_matrix[size] = NULL;
-	for (int i = 0; i < size; i++)
-	{
-		node_matrix[i] = malloc(sizeof(t_node *) * (size + 1));
-		node_matrix[i][size] = NULL;
-		for (int j = 0; j < size; j++)
-		{
-			node_matrix[i][j] = new_node(i, j, map[i][j]);
-		}
-	}
-	return (node_matrix);
+	t_node	*node1 = (t_node *) node_a;
+	t_node	*node2 = (t_node *) node_b;
+	if (node1->i == node2->i
+		&& node1->j == node2->j
+		&& node1->current_movement == node2->current_movement
+		&& node1->straight_movements == node2->straight_movements)
+		return (1);
+	return (0);
 }
 
 void	free_nodes_matrix(t_node ***node_matrix)
